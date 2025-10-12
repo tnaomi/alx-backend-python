@@ -1,41 +1,24 @@
-version: '3.9'
+version: '3'
 
 services:
   db:
     image: mysql:8.0
-    container_name: messaging_db
-    restart: always
-    env_file:
-      - .env
+    container_name: db
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    volumes:
-      - db_data:/var/lib/mysql
+      - MYSQL_USER=messaging_user
+      - MYSQL_PASSWORD=secret123
+      - MYSQL_DB=messaging_db
     ports:
-      - "3307:3306"  # optional: expose for debugging
+      - "3306:3306"
 
   web:
-    build: .
-    container_name: messaging_web
-    restart: always
-    env_file:
-      - .env
-    depends_on:
-      - db
-    ports:
-      - "8000:8000"
-    command: python manage.py runserver 0.0.0.0:8000
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    image: python:3.10
+    container_name: web
+    command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
-
-volumes:
-  db_data:
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
