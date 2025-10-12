@@ -10,6 +10,8 @@ services:
       - MYSQL_DB=messaging_db
     ports:
       - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql  # 👈 persists database files
 
   web:
     image: python:3.10
@@ -22,3 +24,6 @@ services:
       - "8000:8000"
     depends_on:
       - db
+
+volumes:
+  db_data:  # 👈 define the named volume here
