@@ -81,6 +81,8 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages', serialize=True)
     message_body = models.TextField(null=False, blank=False, serialize=True)
     sent_at = models.DateTimeField(auto_now_add=True, serialize=False, editable=False)
+    conversation = models.ForeignKey('Conversation', on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
+
 
     # audit fields
     created_at = models.DateTimeField(auto_now_add=True, serialize=False, editable=False)
