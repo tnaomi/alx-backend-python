@@ -52,7 +52,7 @@ class User(AbstractUser):
     updated_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='updater_user', serialize=False)
     deleted_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter_user', serialize=False)
     
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'date_of_birth', 'username']
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'date_of_birth']
 
     def __str__(self):
         return self.get_full_name().capitalize()
