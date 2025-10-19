@@ -1,6 +1,8 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
 
@@ -9,6 +11,8 @@ class ConversationViewSet(viewsets.ModelViewSet):
     """
     ViewSet for listing, retrieving, and creating conversations.
     """
+    permission_classes=[IsAuthenticated]
+
     queryset = Conversation.objects.all().prefetch_related('participants')
     serializer_class = ConversationSerializer
 
@@ -44,6 +48,8 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     ViewSet for listing and creating messages.
     """
+    permission_classes=[IsAuthenticated]
+    
     queryset = Message.objects.all().select_related('sender', 'receiver')
     serializer_class = MessageSerializer
 
