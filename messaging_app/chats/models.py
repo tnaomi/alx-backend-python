@@ -52,7 +52,7 @@ class User(AbstractUser):
     updated_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='updater_user', serialize=False)
     deleted_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter_user', serialize=False)
     
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'date_of_birth', 'role']
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'date_of_birth', 'role', 'password']
 
     def __str__(self):
         return self.get_full_name().capitalize()
@@ -65,6 +65,7 @@ class User(AbstractUser):
             self.password = self.password_hash
         if self.role.name == 'admin':
             self.is_staff = True
+            self.is_superuser = True
         super().save(*args, **kwargs)
 
     class Meta:
