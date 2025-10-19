@@ -111,7 +111,7 @@ REST_FRAMEWORK = {
     ],
     # Permissions
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",  # Secure by default
+        #"rest_framework.permissions.IsAuthenticated",  # Secure by default
     ],
     # Pagination
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
