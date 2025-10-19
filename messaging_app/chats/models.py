@@ -63,6 +63,8 @@ class User(AbstractUser):
             from django.contrib.auth.hashers import make_password
             self.password_hash = make_password(self.password)
             self.password = self.password_hash
+        if self.role.name == 'admin':
+            self.is_staff = True
         super().save(*args, **kwargs)
 
     class Meta:
