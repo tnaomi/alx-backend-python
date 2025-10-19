@@ -22,9 +22,9 @@ class Role(models.Model):
     updated_at = models.DateTimeField(auto_now=True, serialize=False, editable=True)
     deleted_at = models.DateTimeField(null=True, blank=True, serialize=False, editable=True)
 
-    created_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='created_users', serialize=False)
-    updated_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_users', serialize=False)
-    deleted_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='deleted_users', serialize=False)
+    created_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='creator_role', serialize=False)
+    updated_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='updater_role', serialize=False)
+    deleted_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter_role', serialize=False)
 
     def __str__(self):
         return self.name.capitalize()
@@ -48,11 +48,11 @@ class User(AbstractUser):
     updated_at = models.DateTimeField(auto_now=True, serialize=False, editable=True)
     deleted_at = models.DateTimeField(null=True, blank=True, serialize=False, editable=True)
 
-    created_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='creator', serialize=False)
-    updated_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='updater', serialize=False)
-    deleted_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter', serialize=False)
+    created_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='creator_user', serialize=False)
+    updated_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='updater_user', serialize=False)
+    deleted_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter_user', serialize=False)
     
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'date_of_birth', 'username', 'is_staff']
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name', 'date_of_birth', 'username']
 
     def __str__(self):
         return self.get_full_name().capitalize()
@@ -89,9 +89,9 @@ class Message(models.Model):
     updated_at = models.DateTimeField(auto_now=True, serialize=False, editable=True)
     deleted_at = models.DateTimeField(null=True, blank=True, serialize=False, editable=True)
 
-    created_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='creator', serialize=False)
-    updated_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='updater', serialize=False)
-    deleted_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter', serialize=False)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='creator_message', serialize=False)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='updater_message', serialize=False)
+    deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter_message', serialize=False)
 
     def __str__(self):
         return f"Message from {self.sender.get_full_name()} to {self.receiver.get_full_name()}"
@@ -99,7 +99,7 @@ class Message(models.Model):
     class Meta:
         verbose_name = "Message"
         verbose_name_plural = "Messages"
-        ordering = ['-timestamp']
+        ordering = ['-created_at']
 
 class Conversation(models.Model):
     """Conversation model to group messages between users.
@@ -115,9 +115,9 @@ class Conversation(models.Model):
     updated_at = models.DateTimeField(auto_now=True, serialize=False, editable=True)
     deleted_at = models.DateTimeField(null=True, blank=True, serialize=False, editable=True)
 
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='creator', serialize=False)
-    updated_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='updater', serialize=False)
-    deleted_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter', serialize=False)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='creator_conversation', serialize=False)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='updater_conversation', serialize=False)
+    deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='deleter_conversation', serialize=False)
 
     def __str__(self):
         return f"Conversation {self.conversation_id}"
