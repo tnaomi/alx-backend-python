@@ -1,3 +1,4 @@
+import datetime
 from psycopg2 import Date
 
 
@@ -11,9 +12,9 @@ def validate_date_of_birth(value: Date) -> None:
     Raises:
         ValueError: If the date of birth is in the future.
     """
-    if value > Date.today():
+    if value > datetime.datetime.now().date():
         raise ValueError("Date of birth cannot be in the future")
-    if Date.today().year - value.year < 16:
+    if datetime.datetime.now().year - value.year < 16:
         raise ValueError("User must be at least 16 years old")
 
 def validate_phone_number(value: str) -> None:
