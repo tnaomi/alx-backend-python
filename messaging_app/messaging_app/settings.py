@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "chats",
     "django_filters",
-    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
