@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import User, Role, Message, Conversation
 
 class RoleSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=50)
+    
     class Meta:
         model = Role
         fields = ['name', 'description']
@@ -15,15 +17,42 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['user_id', 'username', 'email', 'first_name', 'last_name', 'date_of_birth', 'phone_number', 'role_id', 'role', 'created_at', 'updated_at']
         read_only_fields = ['user_id', 'created_at', 'updated_at']
 
-class MessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Message
-        fields = ['sender', 'content', 'timestamp', 'conversation_id']
+    def validate_phone_number(self, value):
+        """Custom validation using ValidationError"""
+        if not value.startswith('+'):
+            raise serializers.ValidationError("Phone number must start with '+'.")
+        return value
+
 
 class MiniUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ['user_id', 'username', 'first_name', 'last_name']
+        fields = ['user_id', 'username', 'first_name', 'last_name', 'full_name']
+
+    def get_full_name(self, obj):
+        return obj.get_full_name().capitalize()
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender = MiniUserSerializer(read_only=True)
+    receiver = MiniUserSerializer(read_only=True)
+    sender_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='sender', write_only=True
+    )
+    receiver_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='receiver', write_only=True
+    )
+
+    class Meta:
+        model = Message
+        fields = [
+            'message_id',
+            'sender', 'sender_id',
+            'receiver', 'receiver_id',
+            'message_body', 'sent_at'
+        ]
+        read_only_fields = ['message_id', 'sent_at']
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = MiniUserSerializer(read_only=True)
