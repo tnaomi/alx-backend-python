@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "chats",
     "django_filters",
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -106,6 +107,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",  # Token-based
         "rest_framework.authentication.SessionAuthentication",  # Optional for browsable API
+        'rest_framework.authentication.BasicAuthentication',
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',  # Uncomment if using JWT
     ],
     # Permissions
