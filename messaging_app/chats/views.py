@@ -2,9 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated
-from .models import Conversation, Message, User
-from .serializers import ConversationSerializer, MessageSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from .models import Conversation, Message, Role, User
+from .serializers import ConversationSerializer, MessageSerializer, RoleSerializer, UserSerializer
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -67,3 +67,57 @@ class MessageViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         message = serializer.save()
         return Response(self.get_serializer(message).data, status=status.HTTP_201_CREATED)
+
+class UserViewSet(viewsets.ModelViewSet):
+    """Viewset for user management
+    """
+
+    queryset = User.objects.all().prefetch_related('conversations')
+    serializer_class = UserSerializer
+
+    @permission_classes([AllowAny])
+    def create(self, request, *args, **kwargs):
+        """ Any user can create a new user"""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        message = serializer.save()
+        return Response(self.get_serializer(message).data, status=status.HTTP_201_CREATED)
+
+    @permission_classes([IsAuthenticated, IsAdminUser])
+    def list(self, request, *args, **kwargs):
+        """ Admin can list all users"""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    @permission_classes([IsAuthenticated, IsAdminUser])
+    def user(self, request, *args, **kwargs):
+        """ Admin/ user can get a user"""
+        user_id = kwargs['pk'] or request.user.user_id
+        user = self.get_queryset().get(user_id=user_id)
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+
+class RoleViewSet(viewsets.ModelViewSet):
+    """Viewset for role management
+    """ 
+    permission_classes=[IsAuthenticated, IsAdminUser]
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        role = serializer.save()
+        return Response(self.get_serializer(role).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['get'])
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if kwargs['pk']:
+            queryset = queryset.filter(role_id=kwargs['pk'])
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
