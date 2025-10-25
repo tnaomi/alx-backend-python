@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    environment {
+        GIT_CREDENTIALS = credentials('github-credentials-id')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']], // or your branch
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/tnaomi/alx-backend-python.git',
+                        credentialsId: env.GIT_CREDENTIALS
+                    ]]
+                ])
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh 'python3 -m venv venv'
+                sh '. venv/bin/activate && pip install --upgrade pip'
+                sh '. venv/bin/activate && pip install -r messaging_app/requirements.txt'
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                sh '. venv/bin/activate && pytest --junitxml=report.xml'
+            }
+        }
+        stage('Publish Report') {
+            steps {
+                junit 'report.xml'
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'report.xml', allowEmptyArchive: true
+        }
+        failure {
+            mail to: 'your-email@example.com', subject: 'Build Failed', body: 'Check Jenkins for details.'
+        }
+    }
+}
